@@ -1,5 +1,5 @@
 name: ChatPlugin
-version: '1.1'
+version: '1.2'
 main: ru.chatPlugin.ChatPlugin
 api-version: '1.20'
 softdepend: [ LuckPerms, PlaceholderAPI ]
