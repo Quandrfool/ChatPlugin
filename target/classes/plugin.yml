@@ -1,0 +1,18 @@
+name: ChatPlugin
+version: '1.0'
+main: ru.chatPlugin.ChatPlugin
+api-version: '1.20'
+softdepend: [ LuckPerms, PlaceholderAPI ]
+
+commands:
+  chatcolor:
+    aliases: [chatrgb]
+  chatplugin: {}
+
+permissions:
+  chatplugin.cooldownbypass: {}
+  chatplugin.chatcolor: {}
+  chatplugin.chatcolor.others: {}
+  chatplugin.manualcolor: {}
+  chatplugin.reload: {}
+  chatplugin.help: {}
