@@ -81,15 +81,12 @@ public class Config {
         Utils.prepare();
     }
 
-    public static void processOptions(String[] options) {
+    static void processOptions(String[] options) {
         for (String option : options) {
             final int index = option.indexOf(": ");
             if (index == -1) continue;
             final String parameter = option.substring(0, index);
-            String value = option.substring(index + 2);
-            value = value.replace("\"", "");
-            value = value.replace("\\n", "\n");
-            value = value.replace("&", "§");
+            final String value = option.substring(index + 2).replace("\"", "").replace("\\n", "\n").replace("&", "§");
             switch (parameter) {
                 case "placeholderapi-support":
                     placeholderapisupport = Boolean.parseBoolean(value);
