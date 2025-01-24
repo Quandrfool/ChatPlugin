@@ -7,7 +7,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerChatEvent;
-import org.bukkit.event.player.PlayerLoginEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -31,7 +31,7 @@ import static ru.chatPlugin.ChatPlugin.*;
 public class Listener implements org.bukkit.event.Listener {
 
     @EventHandler(priority = EventPriority.LOWEST)
-    public void onJoin(PlayerLoginEvent event) {
+    public void onJoin(PlayerJoinEvent event) {
         exec.schedule(new Runnable() {
             @Override
             public void run() {
@@ -349,7 +349,7 @@ public class Listener implements org.bukkit.event.Listener {
                         pl.sendMessage(msg);
                     }
                 } else {
-                    final Collection<Player> nearbyplayers = player.getWorld().getNearbyPlayers(player.getLocation(), 100);
+                    final Collection<Player> nearbyplayers = player.getWorld().getNearbyPlayers(player.getLocation(), localchatradius);
                     for (final Player pl : nearbyplayers) {
                         pl.sendMessage(msg);
                     }

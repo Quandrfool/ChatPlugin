@@ -46,6 +46,7 @@ public final class ChatPlugin extends JavaPlugin implements Listener {
     public static boolean chatcolorcommandsupport = true;
     public static String globalmsgformat = "";
     public static String localmsgformat = "";
+    public static int localchatradius = 0;
     public static boolean enablechatcooldown = false;
     public static int chatcooldown = 0;
     public static boolean allowedsymbolscheck = true;

@@ -18,11 +18,13 @@ public class Config {
                 "global-msg-format: \"§8§l[§6§lG§8§l]§f %prefix%%nick%%suffix%§f: \"\n" +
                 "local-msg-format: \"§8§l[§b§lL§8§l]§f %prefix%%nick%%suffix%§f: \"\n" +
                 "\n" +
+                "localchat-radius: 100\n" +
+                "\n" +
                 "enable-chat-cooldown: false\n" +
                 "chat-cooldown: 1000\n" +
                 "\n" +
-                "allowed-symbols-check: true\n" +
-                "allowed-symbols: \"abcdefghijklmnopqrstuvwxyzйцукенгшщзхъфывапролджэячсмитьбю1234567890~!@#№$;%^:&?*(){}[]'\\.\",/| ~ІіїЇЄє+=-_<>\"\n" +
+                "allowed-symbols-check: false\n" +
+                "allowed-symbols: \"abcdefghijklmnopqrstuvwxyzйцукенгшщзхъфывапролджэячсмитьбю1234567890~!@#№$;%^:&?*(){}[]'\\.\",/| ~ІіїЇЄє+=-_<> \"\n" +
                 "\n" +
                 "reload-msg: \"§a§lКонфигурация плагина перезагружена\"\n" +
                 "chatcolor-usage-console-msg: \"§c§lИспользуйте /chatcolor <игрок> <цвет(reg/green/blue-yellow и тд)>\"\n" +
@@ -99,6 +101,9 @@ public class Config {
                     break;
                 case "local-msg-format":
                     localmsgformat = value;
+                    break;
+                case "localchat-radius":
+                    localchatradius = Integer.parseInt(value);
                     break;
                 case "enable-chat-cooldown":
                     enablechatcooldown = Boolean.parseBoolean(value);
