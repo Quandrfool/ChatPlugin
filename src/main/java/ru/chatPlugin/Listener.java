@@ -8,6 +8,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -29,6 +30,11 @@ import java.util.concurrent.TimeUnit;
 import static ru.chatPlugin.ChatPlugin.*;
 
 public class Listener implements org.bukkit.event.Listener {
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onLogin(PlayerLoginEvent event) {
+        if (onsave.contains(event.getPlayer().getName())) event.setResult(PlayerLoginEvent.Result.KICK_OTHER);
+    }
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onJoin(PlayerJoinEvent event) {
@@ -285,26 +291,46 @@ public class Listener implements org.bukkit.event.Listener {
             exec.schedule(new Runnable() {
                 @Override
                 public void run() {
-                    final File playerdata = new File(playersdatafolder + "/" + player.getName() + ".dat");
                     try {
+                        final String nick = player.getName();
+                        if (onload.contains(nick)) {
+                            while (true) {
+                                Thread.sleep(2);
+                                if (!onload.contains(nick)) {
+                                    msgcolorenable.remove(player);
+                                    msgcolorisrgb.remove(player);
+                                    color.remove(player);
+                                    rgbcolor1.remove(player);
+                                    rgbcolor2.remove(player);
+                                    font.remove(player);
+                                    colorname.remove(player);
+                                    rgbcolorname1.remove(player);
+                                    rgbcolorname2.remove(player);
+                                    onsave.remove(nick);
+                                    break;
+                                }
+                            }
+                            return;
+                        }
+                        final File playerdata = new File(playersdatafolder + "/" + nick + ".dat");
                         final ConcurrentHashMap<Character, Integer> rgb1 = rgbcolor1.get(player);
                         final ConcurrentHashMap<Character, Integer> rgb2 = rgbcolor2.get(player);
-                        final String data = msgcolorenable.get(player) + "|" + msgcolorisrgb.get(player) + "|" + color.get(player) + "|" + rgb1.get('r') + "_" + rgb1.get('g') + "_" + rgb1.get('b') + "|" + rgb2.get('r') + "_" + rgb2.get('b') + "_" + rgb2.get('b') + "|" + font.get(player) + "|" + colorname.get(player) + "|" + rgbcolorname1.get(player) + "|" + rgbcolorname2.get(player) + "|";
+                        final String data = msgcolorenable.get(player) + "|" + msgcolorisrgb.get(player) + "|" + color.get(player) + "|" + rgb1.get('r') + "_" + rgb1.get('g') + "_" + rgb1.get('b') + "|" + rgb2.get('r') + "_" + rgb2.get('g') + "_" + rgb2.get('b') + "|" + font.get(player) + "|" + colorname.get(player) + "|" + rgbcolorname1.get(player) + "|" + rgbcolorname2.get(player) + "|";
                         final FileWriter writer = new FileWriter(playerdata);
                         writer.write(data);
                         writer.close();
+                        msgcolorenable.remove(player);
+                        msgcolorisrgb.remove(player);
+                        color.remove(player);
+                        rgbcolor1.remove(player);
+                        rgbcolor2.remove(player);
+                        font.remove(player);
+                        colorname.remove(player);
+                        rgbcolorname1.remove(player);
+                        rgbcolorname2.remove(player);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
-                    msgcolorenable.remove(player);
-                    msgcolorisrgb.remove(player);
-                    color.remove(player);
-                    rgbcolor1.remove(player);
-                    rgbcolor2.remove(player);
-                    font.remove(player);
-                    colorname.remove(player);
-                    rgbcolorname1.remove(player);
-                    rgbcolorname2.remove(player);
                 }
             }, 0, TimeUnit.MILLISECONDS);
         }

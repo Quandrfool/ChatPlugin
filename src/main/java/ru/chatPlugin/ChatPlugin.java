@@ -19,6 +19,8 @@ import java.util.concurrent.ScheduledExecutorService;
 
 public final class ChatPlugin extends JavaPlugin implements Listener {
 
+    public final static HashSet<String> onload = new HashSet<>();
+    public final static HashSet<String> onsave = new HashSet<>();
     public final static HashSet<Player> players = new HashSet<>();
     public final static ConcurrentHashMap<Player, String> msgbeginglobal = new ConcurrentHashMap<>();
     public final static ConcurrentHashMap<Player, String> msgbeginlocal = new ConcurrentHashMap<>();
@@ -36,7 +38,7 @@ public final class ChatPlugin extends JavaPlugin implements Listener {
     public final static ConcurrentHashMap<Player, Long> savetime = new ConcurrentHashMap<>();
     public final static ConcurrentHashMap<Player, Collection<Player>> lastnearbyplayers = new ConcurrentHashMap<>();
     public final static ConcurrentHashMap<String, ItemStack> preparedheads = new ConcurrentHashMap<>();
-    public final static ScheduledExecutorService exec = Executors.newScheduledThreadPool(3);
+    public final static ScheduledExecutorService exec = Executors.newScheduledThreadPool(6);
     public final static Random rand = new Random();
     public static JavaPlugin plugin;
     public static chatcolor chatcolorexecutor;
