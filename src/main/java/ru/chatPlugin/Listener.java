@@ -38,10 +38,12 @@ public class Listener implements org.bukkit.event.Listener {
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onJoin(PlayerJoinEvent event) {
+        final Player player = event.getPlayer();
+        final String nick = player.getName();
+        onload.add(nick);
         exec.schedule(new Runnable() {
             @Override
             public void run() {
-                final Player player = event.getPlayer();
                 boolean suffix = false;
                 boolean prefix = false;
                 String suffixs = "";
@@ -201,7 +203,6 @@ public class Listener implements org.bukkit.event.Listener {
                 }
                 String msgbg = globalmsgformat;
                 String msgbl = localmsgformat;
-                final String nick = player.getName();
                 msgbg = msgbg.replace("%prefix%", prefixs);
                 msgbg = msgbg.replace("%nick%", nick);
                 msgbg = msgbg.replace("%suffix%", suffixs);
@@ -274,6 +275,7 @@ public class Listener implements org.bukkit.event.Listener {
                         players.add(player);
                     }
                 }.runTask(plugin);
+                onload.remove(nick);
             }
         }, 0, TimeUnit.MILLISECONDS);
     }
@@ -281,6 +283,7 @@ public class Listener implements org.bukkit.event.Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onQuit(PlayerQuitEvent event) {
         final Player player = event.getPlayer();
+        final String nick = player.getName();
         players.remove(player);
         msgbeginglobal.remove(player);
         msgbeginlocal.remove(player);
@@ -288,11 +291,11 @@ public class Listener implements org.bukkit.event.Listener {
         savetime.remove(player);
         lastnearbyplayers.remove(player);
         if (chatcolorcommandsupport) {
+            onsave.add(nick);
             exec.schedule(new Runnable() {
                 @Override
                 public void run() {
                     try {
-                        final String nick = player.getName();
                         if (onload.contains(nick)) {
                             while (true) {
                                 Thread.sleep(2);
@@ -331,6 +334,7 @@ public class Listener implements org.bukkit.event.Listener {
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
+                    onsave.remove(nick);
                 }
             }, 0, TimeUnit.MILLISECONDS);
         }
