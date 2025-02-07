@@ -5,8 +5,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
-import ru.chatPlugin.Commands.ChatcolorС;
-import ru.chatPlugin.Commands.ChatpluginС;
+import ru.chatPlugin.Commands.Chatcolor;
+import ru.chatPlugin.Commands.Chatplugin;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -41,7 +41,7 @@ public final class ChatPlugin extends JavaPlugin implements Listener {
     public final static ScheduledExecutorService exec = Executors.newScheduledThreadPool(6);
     public final static Random rand = new Random();
     public static JavaPlugin plugin;
-    public static ChatcolorС chatcolorExecutor;
+    public static Chatcolor chatcolorExecutor;
     public static String configFolderPath = "";
     public static String playersDataFolder = "";
     public static boolean placeholderapisupport = false;
@@ -80,9 +80,9 @@ public final class ChatPlugin extends JavaPlugin implements Listener {
         configFolderPath = plugin.getDataFolder().getAbsolutePath();
         playersDataFolder = configFolderPath + "/playerdata";
         Config.loadConfig();
-        chatcolorExecutor = new ChatcolorС();
+        chatcolorExecutor = new Chatcolor();
         final PluginCommand chatcolorCommand = getCommand("chatcolor");
-        final ChatpluginС chatpluginExecutor = new ChatpluginС();
+        final Chatplugin chatpluginExecutor = new Chatplugin();
         final PluginCommand chatpluginCommand = getCommand("chatplugin");
         chatcolorCommand.setExecutor(chatcolorExecutor);
         chatcolorCommand.setTabCompleter(chatcolorExecutor);

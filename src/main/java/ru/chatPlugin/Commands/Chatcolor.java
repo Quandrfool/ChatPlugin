@@ -15,7 +15,7 @@ import java.util.List;
 
 import static ru.chatPlugin.ChatPlugin.*;
 
-public class ChatcolorС implements CommandExecutor, TabCompleter {
+public class Chatcolor implements CommandExecutor, TabCompleter {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
