@@ -14,16 +14,16 @@ import java.util.List;
 
 import static ru.chatPlugin.ChatPlugin.*;
 
-public class chatplugin implements CommandExecutor, TabCompleter {
+public class Chatplugin implements CommandExecutor, TabCompleter {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         if (args.length > 0 && args[0].equals("color")) {
-            final String[] newargs = new String[args.length - 1];
+            final String[] newArgs = new String[args.length - 1];
             for (int i = 1; i < args.length; i++) {
-                newargs[i - 1] = args[i];
+                newArgs[i - 1] = args[i];
             }
-            chatcolorexecutor.onCommand(sender, command, label, newargs);
+            chatcolorExecutor.onCommand(sender, command, label, newArgs);
             return false;
         }
         switch (args.length) {

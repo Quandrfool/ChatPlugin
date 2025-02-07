@@ -33,14 +33,14 @@ public class Listener implements org.bukkit.event.Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onLogin(PlayerLoginEvent event) {
-        if (onsave.contains(event.getPlayer().getName())) event.setResult(PlayerLoginEvent.Result.KICK_OTHER);
+        if (onSave.contains(event.getPlayer().getName())) event.setResult(PlayerLoginEvent.Result.KICK_OTHER);
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onJoin(PlayerJoinEvent event) {
         final Player player = event.getPlayer();
         final String nick = player.getName();
-        onload.add(nick);
+        onLoad.add(nick);
         exec.schedule(new Runnable() {
             @Override
             public void run() {
@@ -48,234 +48,224 @@ public class Listener implements org.bukkit.event.Listener {
                 boolean prefix = false;
                 String suffixs = "";
                 String prefixs = "";
-                int suffixpriority = 0;
-                int prefixpriority = 0;
-                for (final PermissionAttachmentInfo permatt : player.getEffectivePermissions()) {
-                    final String perm = permatt.getPermission();
-                    final String[] temp = perm.split("\\.");
-                    if (perm.contains("chatsuffix.")) {
-                        if (!suffix) {
-                            suffix = true;
-                            try {
-                                suffixpriority = Integer.parseInt(temp[1]);
-                            } catch (Exception e) {}
-                            if (temp.length == 3) {
-                                suffixs = temp[2];
-                            } else {
-                                for (int i = 2; i < temp.length; i++) {
-                                    suffixs = suffixs + temp[i];
-                                }
-                            }
-                        } else {
-                            int currentpriority = 0;
-                            try {
-                                currentpriority = Integer.parseInt(temp[1]);
-                            } catch (Exception e) {}
-                            if (currentpriority > suffixpriority) {
-                                suffixs = "";
-                                suffixpriority = currentpriority;
+                int suffixPriority = 0;
+                int prefixPriority = 0;
+                try {
+                    for (PermissionAttachmentInfo permAtt : player.getEffectivePermissions()) {
+                        final String perm = permAtt.getPermission();
+                        final String[] temp = perm.split("\\.");
+                        if (perm.contains("chatsuffix.")) {
+                            if (!suffix) {
+                                suffix = true;
+                                suffixPriority = Integer.parseInt(temp[1]);
                                 if (temp.length == 3) {
                                     suffixs = temp[2];
                                 } else {
                                     for (int i = 2; i < temp.length; i++) {
-                                        suffixs = suffixs + temp[i];
+                                        suffixs += temp[i];
+                                    }
+                                }
+                            } else {
+                                int currentPriority = 0;
+                                currentPriority = Integer.parseInt(temp[1]);
+                                if (currentPriority > suffixPriority) {
+                                    suffixs = "";
+                                    suffixPriority = currentPriority;
+                                    if (temp.length == 3) {
+                                        suffixs = temp[2];
+                                    } else {
+                                        for (int i = 2; i < temp.length; i++) {
+                                            suffixs += temp[i];
+                                        }
                                     }
                                 }
                             }
-                        }
-                    } else if (perm.contains("chatprefix.")) {
-                        if (!prefix) {
-                            prefix = true;
-                            try {
-                                prefixpriority = Integer.parseInt(temp[1]);
-                            } catch (Exception e) {}
-                            if (temp.length == 3) {
-                                prefixs = temp[2];
-                            } else {
-                                for (int i = 2; i < temp.length; i++) {
-                                    prefixs = prefixs + temp[i];
-                                }
-                            }
-                        } else {
-                            int currentpriority = 0;
-                            try {
-                                currentpriority = Integer.parseInt(temp[1]);
-                            } catch (Exception e) {}
-                            if (currentpriority > prefixpriority) {
-                                prefixs = "";
-                                prefixpriority = currentpriority;
+                        } else if (perm.contains("chatprefix.")) {
+                            if (!prefix) {
+                                prefix = true;
+                                prefixPriority = Integer.parseInt(temp[1]);
                                 if (temp.length == 3) {
                                     prefixs = temp[2];
                                 } else {
                                     for (int i = 2; i < temp.length; i++) {
-                                        prefixs = prefixs + temp[i];
+                                        prefixs += temp[i];
+                                    }
+                                }
+                            } else {
+                                int currentPriority = 0;
+                                currentPriority = Integer.parseInt(temp[1]);
+                                if (currentPriority > prefixPriority) {
+                                    prefixs = "";
+                                    prefixPriority = currentPriority;
+                                    if (temp.length == 3) {
+                                        prefixs = temp[2];
+                                    } else {
+                                        for (int i = 2; i < temp.length; i++) {
+                                            prefixs += temp[i];
+                                        }
                                     }
                                 }
                             }
                         }
                     }
-                }
-                if (prefix) {
-                    final char[] array = prefixs.toCharArray();
-                    prefixs = "";
-                    final HashSet<Integer> ignorechars = new HashSet<>();
-                    final HashSet<Integer> uppercasechars = new HashSet<>();
-                    int coincidenze = 0;
-                    for (int i = 0; i < array.length; i++) {
-                        switch (coincidenze) {
-                            case 0:
-                                if (array[i] == '@') {
-                                    coincidenze = 1;
-                                }
-                                break;
-                            case 1:
-                                if (array[i] == '#') {
-                                    coincidenze = 2;
-                                }
-                                break;
-                            case 2:
-                                if (array[i] == '@') {
-                                    coincidenze = 0;
-                                    ignorechars.add(i);
-                                    ignorechars.add(i - 1);
-                                    ignorechars.add(i - 2);
-                                    uppercasechars.add(i + 1);
-                                }
-                                break;
+
+                    if (prefix) {
+                        final char[] array = prefixs.toCharArray();
+                        prefixs = "";
+                        final HashSet<Integer> ignoreChars = new HashSet<>();
+                        final HashSet<Integer> upperCaseChars = new HashSet<>();
+                        int coincidenze = 0;
+                        for (int i = 0; i < array.length; i++) {
+                            switch (coincidenze) {
+                                case 0:
+                                    if (array[i] == '@') {
+                                        coincidenze = 1;
+                                    }
+                                    break;
+                                case 1:
+                                    if (array[i] == '#') {
+                                        coincidenze = 2;
+                                    }
+                                    break;
+                                case 2:
+                                    if (array[i] == '@') {
+                                        coincidenze = 0;
+                                        ignoreChars.add(i);
+                                        ignoreChars.add(i - 1);
+                                        ignoreChars.add(i - 2);
+                                        upperCaseChars.add(i + 1);
+                                    }
+                                    break;
+                            }
                         }
-                    }
-                    for (int i = 0; i < array.length; i++) {
-                        if (!ignorechars.contains(i)) {
-                            if (Character.isLetter(array[i])) {
-                                if (uppercasechars.contains(i)) {
-                                    prefixs = prefixs + Character.toUpperCase(array[i]);
+                        for (int i = 0; i < array.length; i++) {
+                            if (!ignoreChars.contains(i)) {
+                                if (Character.isLetter(array[i])) {
+                                    if (upperCaseChars.contains(i)) {
+                                        prefixs += Character.toUpperCase(array[i]);
+                                    } else {
+                                        prefixs += array[i];
+                                    }
                                 } else {
-                                    prefixs = prefixs + array[i];
+                                    prefixs += array[i];
                                 }
-                            } else {
-                                prefixs = prefixs + array[i];
                             }
                         }
                     }
-                }
-                if (suffix) {
-                    final char[] array = suffixs.toCharArray();
-                    suffixs = "";
-                    final HashSet<Integer> ignorechars = new HashSet<>();
-                    final HashSet<Integer> uppercasechars = new HashSet<>();
-                    int coincidenze = 0;
-                    for (int i = 0; i < array.length; i++) {
-                        switch (coincidenze) {
-                            case 0:
-                                if (array[i] == '@') {
-                                    coincidenze = 1;
-                                }
-                                break;
-                            case 1:
-                                if (array[i] == '#') {
-                                    coincidenze = 2;
-                                }
-                                break;
-                            case 2:
-                                if (array[i] == '@') {
-                                    coincidenze = 0;
-                                    ignorechars.add(i);
-                                    ignorechars.add(i - 1);
-                                    ignorechars.add(i - 2);
-                                    uppercasechars.add(i + 1);
-                                }
-                                break;
+                    if (suffix) {
+                        final char[] array = suffixs.toCharArray();
+                        suffixs = "";
+                        final HashSet<Integer> ignoreChars = new HashSet<>();
+                        final HashSet<Integer> upperCaseChars = new HashSet<>();
+                        int coincidenze = 0;
+                        for (int i = 0; i < array.length; i++) {
+                            switch (coincidenze) {
+                                case 0:
+                                    if (array[i] == '@') {
+                                        coincidenze = 1;
+                                    }
+                                    break;
+                                case 1:
+                                    if (array[i] == '#') {
+                                        coincidenze = 2;
+                                    }
+                                    break;
+                                case 2:
+                                    if (array[i] == '@') {
+                                        coincidenze = 0;
+                                        ignoreChars.add(i);
+                                        ignoreChars.add(i - 1);
+                                        ignoreChars.add(i - 2);
+                                        upperCaseChars.add(i + 1);
+                                    }
+                                    break;
+                            }
                         }
-                    }
-                    for (int i = 0; i < array.length; i++) {
-                        if (!ignorechars.contains(i)) {
-                            if (Character.isLetter(array[i])) {
-                                if (uppercasechars.contains(i)) {
-                                    suffixs = suffixs + Character.toUpperCase(array[i]);
+                        for (int i = 0; i < array.length; i++) {
+                            if (!ignoreChars.contains(i)) {
+                                if (Character.isLetter(array[i])) {
+                                    if (upperCaseChars.contains(i)) {
+                                        suffixs += Character.toUpperCase(array[i]);
+                                    } else {
+                                        suffixs += array[i];
+                                    }
                                 } else {
-                                    suffixs = suffixs + array[i];
+                                    suffixs += array[i];
                                 }
-                            } else {
-                                suffixs = suffixs + array[i];
                             }
                         }
                     }
-                }
-                String msgbg = globalmsgformat;
-                String msgbl = localmsgformat;
-                msgbg = msgbg.replace("%prefix%", prefixs);
-                msgbg = msgbg.replace("%nick%", nick);
-                msgbg = msgbg.replace("%suffix%", suffixs);
-                msgbl = msgbl.replace("%prefix%", prefixs);
-                msgbl = msgbl.replace("%nick%", nick);
-                msgbl = msgbl.replace("%suffix%", suffixs);
-                if (placeholderapisupport) {
-                    msgbg = PlaceholderAPI.setPlaceholders(player, msgbg);
-                    msgbl = PlaceholderAPI.setPlaceholders(player, msgbl);
-                    msgbg = msgbg.replaceAll("\\s+", " ");
-                    msgbl = msgbl.replaceAll("\\s+", " ");
-                }
-                msgbg = msgbg.replace("&", "§");
-                msgbl = msgbl.replace("&", "§");
-                msgbeginglobal.put(player, msgbg);
-                msgbeginlocal.put(player, msgbl);
-                lastmsgtime.put(player, System.currentTimeMillis());
-                if (chatcolorcommandsupport) {
-                    final File playerdata = new File(playersdatafolder + "/" + nick + ".dat");
-                    if (!playerdata.exists()) {
-                        try {
-                            playerdata.createNewFile();
-                            final FileWriter writer = new FileWriter(playerdata);
+                    String msgBg = globalmsgformat;
+                    String msgBl = localmsgformat;
+                    msgBg = msgBg.replace("%prefix%", prefixs);
+                    msgBg = msgBg.replace("%nick%", nick);
+                    msgBg = msgBg.replace("%suffix%", suffixs);
+                    msgBl = msgBl.replace("%prefix%", prefixs);
+                    msgBl = msgBl.replace("%nick%", nick);
+                    msgBl = msgBl.replace("%suffix%", suffixs);
+                    if (placeholderapisupport) {
+                        msgBg = PlaceholderAPI.setPlaceholders(player, msgBg);
+                        msgBl = PlaceholderAPI.setPlaceholders(player, msgBl);
+                        msgBg = msgBg.replaceAll("\\s+", " ");
+                        msgBl = msgBl.replaceAll("\\s+", " ");
+                    }
+                    msgBg = msgBg.replace("&", "§");
+                    msgBl = msgBl.replace("&", "§");
+                    msgBeginGlobal.put(player, msgBg);
+                    msgBeginLocal.put(player, msgBl);
+                    lastMsgTime.put(player, System.currentTimeMillis());
+                    if (chatcolorcommandsupport) {
+                        final File playerData = new File(playersDataFolder + "/" + nick + ".dat");
+                        if (!playerData.exists()) {
+                            playerData.createNewFile();
+                            final FileWriter writer = new FileWriter(playerData);
                             writer.write("false|false||||||||");
                             writer.close();
-                        } catch (Exception e) {}
-                        msgcolorenable.put(player, false);
-                        msgcolorisrgb.put(player, false);
-                        color.put(player, "");
-                        final ConcurrentHashMap<Character, Integer> rgb = Utils.getRGBByColorName("white");
-                        rgbcolor1.put(player, rgb);
-                        rgbcolor2.put(player, rgb);
-                        font.put(player, "");
-                        colorname.put(player, "§f§lБелый");
-                        rgbcolorname1.put(player, "§f§lБелый");
-                        rgbcolorname2.put(player, "§f§lБелый");
-                    } else {
-                        try {
-                            final String[] data = new String(Files.readAllBytes(Paths.get(playerdata.getAbsolutePath()))).split("\\|");
-                            msgcolorenable.put(player, Boolean.parseBoolean(data[0]));
-                            msgcolorisrgb.put(player, Boolean.parseBoolean(data[1]));
+                            msgColorEnable.put(player, false);
+                            msgColorIsRgb.put(player, false);
+                            color.put(player, "");
+                            final ConcurrentHashMap<Character, Integer> rgb = Utils.getRgbByColorName("white");
+                            rgbColor1.put(player, rgb);
+                            rgbColor2.put(player, rgb);
+                            font.put(player, "");
+                            colorName.put(player, "§f§lБелый");
+                            rgbColorName1.put(player, "§f§lБелый");
+                            rgbColorName2.put(player, "§f§lБелый");
+                        } else {
+                            final String[] data = new String(Files.readAllBytes(Paths.get(playerData.getAbsolutePath()))).split("\\|");
+                            msgColorEnable.put(player, Boolean.parseBoolean(data[0]));
+                            msgColorIsRgb.put(player, Boolean.parseBoolean(data[1]));
                             color.put(player, data[2]);
                             final ConcurrentHashMap<Character, Integer> rgb1 = new ConcurrentHashMap<>();
-                            final String[] rgbarray1 = data[3].split("_");
-                            rgb1.put('r', Integer.parseInt(rgbarray1[0]));
-                            rgb1.put('g', Integer.parseInt(rgbarray1[1]));
-                            rgb1.put('b', Integer.parseInt(rgbarray1[2]));
-                            rgbcolor1.put(player, rgb1);
+                            final String[] rgbArray1 = data[3].split("_");
+                            rgb1.put('r', Integer.parseInt(rgbArray1[0]));
+                            rgb1.put('g', Integer.parseInt(rgbArray1[1]));
+                            rgb1.put('b', Integer.parseInt(rgbArray1[2]));
+                            rgbColor1.put(player, rgb1);
                             final ConcurrentHashMap<Character, Integer> rgb2 = new ConcurrentHashMap<>();
-                            final String[] rgbarray2 = data[4].split("_");
-                            rgb2.put('r', Integer.parseInt(rgbarray2[0]));
-                            rgb2.put('g', Integer.parseInt(rgbarray2[1]));
-                            rgb2.put('b', Integer.parseInt(rgbarray2[2]));
-                            rgbcolor2.put(player, rgb2);
+                            final String[] rgbArray2 = data[4].split("_");
+                            rgb2.put('r', Integer.parseInt(rgbArray2[0]));
+                            rgb2.put('g', Integer.parseInt(rgbArray2[1]));
+                            rgb2.put('b', Integer.parseInt(rgbArray2[2]));
+                            rgbColor2.put(player, rgb2);
                             font.put(player, data[5]);
-                            colorname.put(player, data[6]);
-                            rgbcolorname1.put(player, data[7]);
-                            rgbcolorname2.put(player, data[8]);
-                        } catch (Exception e) {
-                            e.printStackTrace();
+                            colorName.put(player, data[6]);
+                            rgbColorName1.put(player, data[7]);
+                            rgbColorName2.put(player, data[8]);
                         }
                     }
+                    new BukkitRunnable() {
+                        @Override
+                        public void run() {
+                            lastNearbyPlayers.put(player, player.getWorld().getNearbyPlayers(player.getLocation(), 100));
+                            saveTime.put(player, System.currentTimeMillis());
+                            players.add(player);
+                        }
+                    }.runTask(plugin);
+                    onLoad.remove(nick);
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
-                new BukkitRunnable() {
-                    @Override
-                    public void run() {
-                        final Collection<Player> nearbyplayers = player.getWorld().getNearbyPlayers(player.getLocation(), 100);
-                        lastnearbyplayers.put(player, nearbyplayers);
-                        savetime.put(player, System.currentTimeMillis());
-                        players.add(player);
-                    }
-                }.runTask(plugin);
-                onload.remove(nick);
             }
         }, 0, TimeUnit.MILLISECONDS);
     }
@@ -285,56 +275,55 @@ public class Listener implements org.bukkit.event.Listener {
         final Player player = event.getPlayer();
         final String nick = player.getName();
         players.remove(player);
-        msgbeginglobal.remove(player);
-        msgbeginlocal.remove(player);
-        lastmsgtime.remove(player);
-        savetime.remove(player);
-        lastnearbyplayers.remove(player);
+        msgBeginGlobal.remove(player);
+        msgBeginLocal.remove(player);
+        lastMsgTime.remove(player);
+        saveTime.remove(player);
+        lastNearbyPlayers.remove(player);
         if (chatcolorcommandsupport) {
-            onsave.add(nick);
+            onSave.add(nick);
             exec.schedule(new Runnable() {
                 @Override
                 public void run() {
                     try {
-                        if (onload.contains(nick)) {
+                        if (onLoad.contains(nick)) {
                             while (true) {
                                 Thread.sleep(2);
-                                if (!onload.contains(nick)) {
-                                    msgcolorenable.remove(player);
-                                    msgcolorisrgb.remove(player);
+                                if (!onLoad.contains(nick)) {
+                                    msgColorEnable.remove(player);
+                                    msgColorIsRgb.remove(player);
                                     color.remove(player);
-                                    rgbcolor1.remove(player);
-                                    rgbcolor2.remove(player);
+                                    rgbColor1.remove(player);
+                                    rgbColor2.remove(player);
                                     font.remove(player);
-                                    colorname.remove(player);
-                                    rgbcolorname1.remove(player);
-                                    rgbcolorname2.remove(player);
-                                    onsave.remove(nick);
+                                    colorName.remove(player);
+                                    rgbColorName1.remove(player);
+                                    rgbColorName2.remove(player);
+                                    onSave.remove(nick);
                                     break;
                                 }
                             }
                             return;
                         }
-                        final File playerdata = new File(playersdatafolder + "/" + nick + ".dat");
-                        final ConcurrentHashMap<Character, Integer> rgb1 = rgbcolor1.get(player);
-                        final ConcurrentHashMap<Character, Integer> rgb2 = rgbcolor2.get(player);
-                        final String data = msgcolorenable.get(player) + "|" + msgcolorisrgb.get(player) + "|" + color.get(player) + "|" + rgb1.get('r') + "_" + rgb1.get('g') + "_" + rgb1.get('b') + "|" + rgb2.get('r') + "_" + rgb2.get('g') + "_" + rgb2.get('b') + "|" + font.get(player) + "|" + colorname.get(player) + "|" + rgbcolorname1.get(player) + "|" + rgbcolorname2.get(player) + "|";
-                        final FileWriter writer = new FileWriter(playerdata);
+                        final ConcurrentHashMap<Character, Integer> rgb1 = rgbColor1.get(player);
+                        final ConcurrentHashMap<Character, Integer> rgb2 = rgbColor2.get(player);
+                        final String data = msgColorEnable.get(player) + "|" + msgColorIsRgb.get(player) + "|" + color.get(player) + "|" + rgb1.get('r') + "_" + rgb1.get('g') + "_" + rgb1.get('b') + "|" + rgb2.get('r') + "_" + rgb2.get('g') + "_" + rgb2.get('b') + "|" + font.get(player) + "|" + colorName.get(player) + "|" + rgbColorName1.get(player) + "|" + rgbColorName2.get(player) + "|";
+                        final FileWriter writer = new FileWriter(playersDataFolder + "/" + nick + ".dat");
                         writer.write(data);
                         writer.close();
-                        msgcolorenable.remove(player);
-                        msgcolorisrgb.remove(player);
+                        msgColorEnable.remove(player);
+                        msgColorIsRgb.remove(player);
                         color.remove(player);
-                        rgbcolor1.remove(player);
-                        rgbcolor2.remove(player);
+                        rgbColor1.remove(player);
+                        rgbColor2.remove(player);
                         font.remove(player);
-                        colorname.remove(player);
-                        rgbcolorname1.remove(player);
-                        rgbcolorname2.remove(player);
+                        colorName.remove(player);
+                        rgbColorName1.remove(player);
+                        rgbColorName2.remove(player);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
-                    onsave.remove(nick);
+                    onSave.remove(nick);
                 }
             }, 0, TimeUnit.MILLISECONDS);
         }
@@ -345,15 +334,15 @@ public class Listener implements org.bukkit.event.Listener {
         event.setCancelled(true);
         final Player player = event.getPlayer();
         if (enablechatcooldown & !player.hasPermission("chatplugin.cooldownbypass")) {
-            if (System.currentTimeMillis() - lastmsgtime.get(player) < chatcooldown) {
+            if (System.currentTimeMillis() - lastMsgTime.get(player) < chatcooldown) {
                 player.sendMessage(cooldownmsg);
                 return;
             }
-            lastmsgtime.put(player, System.currentTimeMillis());
+            lastMsgTime.put(player, System.currentTimeMillis());
         }
-        String origmsg = event.getMessage();
+        String origMsg = event.getMessage();
         if (allowedsymbolscheck) {
-            final char[] chars = origmsg.toCharArray();
+            final char[] chars = origMsg.toCharArray();
             for (int i = 0; i < chars.length; i++) {
                 if (!allowedsymbols.contains(Character.toLowerCase(chars[i]) + "")) {
                     player.sendMessage(unallowedsymbolsmsg);
@@ -362,29 +351,29 @@ public class Listener implements org.bukkit.event.Listener {
             }
         }
         if (player.hasPermission("chatplugin.manualcolor")) {
-            origmsg = origmsg.replace("&", "§");
+            origMsg = origMsg.replace("&", "§");
         }
         if (players.contains(player)) {
-            if (origmsg.charAt(0) == '!') {
-                if (origmsg.length() > 1) {
-                    final String msg = msgbeginglobal.get(player) + Utils.colorizemsg(origmsg.substring(1), player);
-                    for (final Player pl : players) {
+            if (origMsg.charAt(0) == '!') {
+                if (origMsg.length() > 1) {
+                    final String msg = msgBeginGlobal.get(player) + Utils.colorizeMsg(origMsg.substring(1), player);
+                    for (Player pl : players) {
                         pl.sendMessage(msg);
                     }
                 }
             } else {
-                final String msg = msgbeginlocal.get(player) + Utils.colorizemsg(origmsg, player);
-                if (System.currentTimeMillis() - savetime.get(player) < 2000) {
-                    for (final Player pl : lastnearbyplayers.get(player)) {
+                final String msg = msgBeginLocal.get(player) + Utils.colorizeMsg(origMsg, player);
+                if (System.currentTimeMillis() - saveTime.get(player) < 2000) {
+                    for (Player pl : lastNearbyPlayers.get(player)) {
                         pl.sendMessage(msg);
                     }
                 } else {
-                    final Collection<Player> nearbyplayers = player.getWorld().getNearbyPlayers(player.getLocation(), localchatradius);
-                    for (final Player pl : nearbyplayers) {
+                    final Collection<Player> nearbyPlayers = player.getWorld().getNearbyPlayers(player.getLocation(), localchatradius);
+                    for (Player pl : nearbyPlayers) {
                         pl.sendMessage(msg);
                     }
-                    lastnearbyplayers.put(player, nearbyplayers);
-                    savetime.put(player, System.currentTimeMillis());
+                    lastNearbyPlayers.put(player, nearbyPlayers);
+                    saveTime.put(player, System.currentTimeMillis());
                 }
             }
         }
@@ -394,14 +383,14 @@ public class Listener implements org.bukkit.event.Listener {
     public void onInvClick(InventoryClickEvent event) {
         final Inventory inv = event.getClickedInventory();
         if (inv == null) return;
-        final Integer maxstacksize = inv.getMaxStackSize();
-        if (maxstacksize == null) return;
-        if (maxstacksize < 88634) return;
+        final Integer maxStackSize = inv.getMaxStackSize();
+        if (maxStackSize == null) return;
+        if (maxStackSize < 88634) return;
         try {
             final Player player = (Player) inv.getHolder();
             final Player player2 = Bukkit.getPlayer(inv.getViewers().get(0).getName());
             final String item = event.getCurrentItem().getLore().get(0);
-            switch (maxstacksize) {
+            switch (maxStackSize) {
                 case 88634:
                     event.setCancelled(true);
                     if (player2 == null || !players.contains(player2)) {
@@ -411,20 +400,20 @@ public class Listener implements org.bukkit.event.Listener {
                     }
                     switch (item) {
                         case "§c§lВыключить кастомные сообщения":
-                            Utils.disablemsgcolor(player2);
+                            Utils.disableMsgColor(player2);
                             inv.setItem(3, null);
-                            inv.setItem(4, Prepared.enablecustommessages);
+                            inv.setItem(4, Prepared.enableCustomMessages);
                             inv.setItem(5, null);
                             break;
                         case "§a§lВключить кастомные сообщения":
-                            msgcolorenable.put(player2, true);
-                            inv.setItem(3, Prepared.disablecustommessages);
-                            inv.setItem(4, Prepared.colorsettings);
-                            inv.setItem(5, Prepared.fontsettings);
+                            msgColorEnable.put(player2, true);
+                            inv.setItem(3, Prepared.disableCustomMessages);
+                            inv.setItem(4, Prepared.colorSettings);
+                            inv.setItem(5, Prepared.fontSettings);
                             break;
                         case "§a§lНастройки цвета":
-                            if (msgcolorisrgb.get(player2)) {
-                                player.openInventory(Utils.createRGBMenu(player, player2));
+                            if (msgColorIsRgb.get(player2)) {
+                                player.openInventory(Utils.createRgbMenu(player, player2));
                             } else {
                                 final String title;
                                 if (player == player2) {
@@ -433,16 +422,16 @@ public class Listener implements org.bukkit.event.Listener {
                                     title = "§0§lНастройки сообщений игрока " + player2.getName();
                                 }
                                 final Inventory menu = Bukkit.createInventory(player2, 36, title);
-                                menu.setItem(0, Prepared.setrgb);
+                                menu.setItem(0, Prepared.setRgb);
                                 Utils.fillInventoryColors(menu, 18);
-                                final ItemStack currentcolor = preparedheads.get(colorname.get(player)).clone();
-                                final ItemMeta meta = currentcolor.getItemMeta();
+                                final ItemStack currentColor = preparedHeads.get(colorName.get(player)).clone();
+                                final ItemMeta meta = currentColor.getItemMeta();
                                 meta.setDisplayName("§f§lТекущий цвет:");
-                                final List<String> lorelist = new ArrayList<>();
-                                lorelist.add(meta.getLore().get(0));
-                                meta.setLore(lorelist);
-                                currentcolor.setItemMeta(meta);
-                                menu.setItem(4, currentcolor);
+                                final List<String> loreList = new ArrayList<>();
+                                loreList.add(meta.getLore().get(0));
+                                meta.setLore(loreList);
+                                currentColor.setItemMeta(meta);
+                                menu.setItem(4, currentColor);
                                 menu.setItem(8, Prepared.back);
                                 menu.setMaxStackSize(88636);
                                 player.openInventory(menu);
@@ -451,26 +440,26 @@ public class Listener implements org.bukkit.event.Listener {
                         case "§a§lНастройки шрифта":
                             inv.setItem(4, null);
                             inv.setItem(5, null);
-                            final String currentfont = font.get(player2);
-                            if (currentfont.contains("§o")) {
-                                inv.setItem(0, Prepared.offitalic);
+                            final String currentFont = font.get(player2);
+                            if (currentFont.contains("§o")) {
+                                inv.setItem(0, Prepared.offItalic);
                             } else {
-                                inv.setItem(0, Prepared.onitalic);
+                                inv.setItem(0, Prepared.onItalic);
                             }
-                            if (currentfont.contains("§l")) {
-                                inv.setItem(1, Prepared.offbold);
+                            if (currentFont.contains("§l")) {
+                                inv.setItem(1, Prepared.offBold);
                             } else {
-                                inv.setItem(1, Prepared.onbold);
+                                inv.setItem(1, Prepared.onBold);
                             }
-                            if (currentfont.contains("§n")) {
-                                inv.setItem(2, Prepared.offunderline);
+                            if (currentFont.contains("§n")) {
+                                inv.setItem(2, Prepared.offUnderline);
                             } else {
-                                inv.setItem(2, Prepared.onunderline);
+                                inv.setItem(2, Prepared.onUnderline);
                             }
-                            if (currentfont.contains("§m")) {
-                                inv.setItem(3, Prepared.offstrikethrough);
+                            if (currentFont.contains("§m")) {
+                                inv.setItem(3, Prepared.offStrikethrough);
                             } else {
-                                inv.setItem(3, Prepared.onstrikethrough);
+                                inv.setItem(3, Prepared.onStrikethrough);
                             }
                             inv.setItem(8, Prepared.back);
                             inv.setMaxStackSize(88635);
@@ -484,52 +473,52 @@ public class Listener implements org.bukkit.event.Listener {
                         player2.sendMessage(playernotfoundmsg);
                         return;
                     }
-                    final String currentfont = font.get(player2);
+                    final String currentFont = font.get(player2);
                     switch (item) {
                         case "§c§lВыключить наклонённый шрифт":
-                            font.put(player2, currentfont.replace("§o", ""));
-                            inv.setItem(0, Prepared.onitalic);
+                            font.put(player2, currentFont.replace("§o", ""));
+                            inv.setItem(0, Prepared.onItalic);
                             break;
                         case "§a§lВключить наклонённый шрифт":
-                            font.put(player2, currentfont + "§o");
-                            inv.setItem(0, Prepared.offitalic);
+                            font.put(player2, currentFont + "§o");
+                            inv.setItem(0, Prepared.offItalic);
                             break;
                         case "§c§lВыключить жирный шрифт":
-                            font.put(player2, currentfont.replace("§l", ""));
-                            inv.setItem(1, Prepared.onbold);
+                            font.put(player2, currentFont.replace("§l", ""));
+                            inv.setItem(1, Prepared.onBold);
                             break;
                         case "§a§lВключить жирный шрифт":
-                            font.put(player2, currentfont + "§l");
-                            inv.setItem(1, Prepared.offbold);
+                            font.put(player2, currentFont + "§l");
+                            inv.setItem(1, Prepared.offBold);
                             break;
                         case "§c§lВыключить подчёркнутый шрифт":
-                            font.put(player2, currentfont.replace("§n", ""));
-                            inv.setItem(2, Prepared.onunderline);
+                            font.put(player2, currentFont.replace("§n", ""));
+                            inv.setItem(2, Prepared.onUnderline);
                             break;
                         case "§a§lВключить подчёркнутый шрифт":
-                            font.put(player2, currentfont + "§n");
-                            inv.setItem(2, Prepared.offunderline);
+                            font.put(player2, currentFont + "§n");
+                            inv.setItem(2, Prepared.offUnderline);
                             break;
                         case "§c§lВыключить зачёркнутый шрифт":
-                            font.put(player2, currentfont.replace("§m", ""));
-                            inv.setItem(3, Prepared.onstrikethrough);
+                            font.put(player2, currentFont.replace("§m", ""));
+                            inv.setItem(3, Prepared.onStrikethrough);
                             break;
                         case "§a§lВключить зачёркнутый шрифт":
-                            font.put(player2, currentfont + "§m");
-                            inv.setItem(3, Prepared.offstrikethrough);
+                            font.put(player2, currentFont + "§m");
+                            inv.setItem(3, Prepared.offStrikethrough);
                             break;
                         case "§lНазад":
                             inv.setItem(0, null);
                             inv.setItem(1, null);
                             inv.setItem(2, null);
                             inv.setItem(8, null);
-                            if (!msgcolorenable.get(player2)) {
+                            if (!msgColorEnable.get(player2)) {
                                 inv.setItem(3, null);
-                                inv.setItem(4, Prepared.enablecustommessages);
+                                inv.setItem(4, Prepared.enableCustomMessages);
                             } else {
-                                inv.setItem(3, Prepared.disablecustommessages);
-                                inv.setItem(4, Prepared.colorsettings);
-                                inv.setItem(5, Prepared.fontsettings);
+                                inv.setItem(3, Prepared.disableCustomMessages);
+                                inv.setItem(4, Prepared.colorSettings);
+                                inv.setItem(5, Prepared.fontSettings);
                             }
                             inv.setMaxStackSize(88634);
                             break;
@@ -547,20 +536,20 @@ public class Listener implements org.bukkit.event.Listener {
                             Utils.openSettings(player, player2);
                             break;
                         case "§lПоменять тип цвета на градиент":
-                            msgcolorisrgb.put(player2, true);
-                            player.openInventory(Utils.createRGBMenu(player, player2));
+                            msgColorIsRgb.put(player2, true);
+                            player.openInventory(Utils.createRgbMenu(player, player2));
                             break;
                         default:
-                            colorname.put(player2, item);
+                            colorName.put(player2, item);
                             color.put(player2, item.substring(0, 2));
-                            final ItemStack currentcolor = preparedheads.get(colorname.get(player)).clone();
-                            final ItemMeta meta = currentcolor.getItemMeta();
+                            final ItemStack currentColor = preparedHeads.get(colorName.get(player)).clone();
+                            final ItemMeta meta = currentColor.getItemMeta();
                             meta.setDisplayName("§f§lТекущий цвет:");
-                            final List<String> lorelist = new ArrayList<>();
-                            lorelist.add(meta.getLore().get(0));
-                            meta.setLore(lorelist);
-                            currentcolor.setItemMeta(meta);
-                            inv.setItem(4, currentcolor);
+                            final List<String> loreList = new ArrayList<>();
+                            loreList.add(meta.getLore().get(0));
+                            meta.setLore(loreList);
+                            currentColor.setItemMeta(meta);
+                            inv.setItem(4, currentColor);
                             break;
                     }
                     break;
@@ -576,7 +565,7 @@ public class Listener implements org.bukkit.event.Listener {
                             Utils.openSettings(player, player2);
                             break;
                         case "§lПоменять тип цвета на обычный":
-                            msgcolorisrgb.put(player2, false);
+                            msgColorIsRgb.put(player2, false);
                             final String title;
                             if (player == player2) {
                                 title = "§0§lНастройки сообщений";
@@ -584,43 +573,43 @@ public class Listener implements org.bukkit.event.Listener {
                                 title = "§0§lНастройки сообщений игрока " + player2.getName();
                             }
                             final Inventory menu = Bukkit.createInventory(player2, 36, title);
-                            menu.setItem(0, Prepared.setrgb);
+                            menu.setItem(0, Prepared.setRgb);
                             Utils.fillInventoryColors(menu, 18);
                             menu.setItem(8, Prepared.back);
-                            final ItemStack currentcolor = preparedheads.get(colorname.get(player)).clone();
-                            final ItemMeta meta = currentcolor.getItemMeta();
+                            final ItemStack currentColor = preparedHeads.get(colorName.get(player)).clone();
+                            final ItemMeta meta = currentColor.getItemMeta();
                             meta.setDisplayName("§f§lТекущий цвет:");
-                            final List<String> lorelist = new ArrayList<>();
-                            lorelist.add(meta.getLore().get(0));
-                            meta.setLore(lorelist);
-                            currentcolor.setItemMeta(meta);
-                            menu.setItem(4, currentcolor);
+                            final List<String> loreList = new ArrayList<>();
+                            loreList.add(meta.getLore().get(0));
+                            meta.setLore(loreList);
+                            currentColor.setItemMeta(meta);
+                            menu.setItem(4, currentColor);
                             menu.setMaxStackSize(88636);
                             player.openInventory(menu);
                             break;
                         case "§f§lПервый цвет":
-                            final String color1title;
+                            final String color1Title;
                             if (player == player2) {
-                                color1title = "§0§lНастройки сообщений";
+                                color1Title = "§0§lНастройки сообщений";
                             } else {
-                                color1title = "§0§lНастройки сообщений игрока " + player2.getName();
+                                color1Title = "§0§lНастройки сообщений игрока " + player2.getName();
                             }
-                            final Inventory color1menu = Bukkit.createInventory(player2, 18, color1title);
-                            color1menu.setMaxStackSize(88638);
-                            Utils.fillInventoryColors(color1menu, 0);
-                            player.openInventory(color1menu);
+                            final Inventory color1Menu = Bukkit.createInventory(player2, 18, color1Title);
+                            color1Menu.setMaxStackSize(88638);
+                            Utils.fillInventoryColors(color1Menu, 0);
+                            player.openInventory(color1Menu);
                             break;
                         case "§f§lВторой цвет":
-                            final String color2title;
+                            final String color2Title;
                             if (player == player2) {
-                                color2title = "§0§lНастройки сообщений";
+                                color2Title = "§0§lНастройки сообщений";
                             } else {
-                                color2title = "§0§lНастройки сообщений игрока " + player2.getName();
+                                color2Title = "§0§lНастройки сообщений игрока " + player2.getName();
                             }
-                            final Inventory color2menu = Bukkit.createInventory(player2, 18, color2title);
-                            color2menu.setMaxStackSize(88639);
-                            Utils.fillInventoryColors(color2menu, 0);
-                            player.openInventory(color2menu);
+                            final Inventory color2Menu = Bukkit.createInventory(player2, 18, color2Title);
+                            color2Menu.setMaxStackSize(88639);
+                            Utils.fillInventoryColors(color2Menu, 0);
+                            player.openInventory(color2Menu);
                             break;
                     }
                     break;
@@ -631,9 +620,9 @@ public class Listener implements org.bukkit.event.Listener {
                         player2.sendMessage(playernotfoundmsg);
                         return;
                     }
-                    rgbcolorname1.put(player2, item);
-                    rgbcolor1.put(player2, Utils.getRGBByColorName(item));
-                    player.openInventory(Utils.createRGBMenu(player, player2));
+                    rgbColorName1.put(player2, item);
+                    rgbColor1.put(player2, Utils.getRgbByColorName(item));
+                    player.openInventory(Utils.createRgbMenu(player, player2));
                     break;
                 case 88639:
                     event.setCancelled(true);
@@ -642,9 +631,9 @@ public class Listener implements org.bukkit.event.Listener {
                         player2.sendMessage(playernotfoundmsg);
                         return;
                     }
-                    rgbcolorname2.put(player2, item);
-                    rgbcolor2.put(player2, Utils.getRGBByColorName(item));
-                    player.openInventory(Utils.createRGBMenu(player, player2));
+                    rgbColorName2.put(player2, item);
+                    rgbColor2.put(player2, Utils.getRgbByColorName(item));
+                    player.openInventory(Utils.createRgbMenu(player, player2));
                     break;
             }
         } catch (Exception e) {}

@@ -15,7 +15,7 @@ import java.util.List;
 
 import static ru.chatPlugin.ChatPlugin.*;
 
-public class chatcolor implements CommandExecutor, TabCompleter {
+public class Chatcolor implements CommandExecutor, TabCompleter {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
@@ -61,27 +61,27 @@ public class chatcolor implements CommandExecutor, TabCompleter {
         if (sender.hasPermission("chatplugin.chatcolor.others")) {
             final Player target = Bukkit.getPlayer(args[0]);
             if (target != null && players.contains(target)) {
-                if (!colorcodes.containsKey(args[1])) {
+                if (!colorCodes.containsKey(args[1])) {
                     if (!Utils.setFont(args[1], sender, target)) {
-                        if (!Utils.setRGB(args[1], sender, target)) {
+                        if (!Utils.setRgb(args[1], sender, target)) {
                             if (args[1].equals("off")) {
-                                Utils.disablemsgcolor(target);
+                                Utils.disableMsgColor(target);
                                 sender.sendMessage(chatcoloroffothersmsg.replace("%nick%", target.getName()));
                             } else {
                                 sender.sendMessage(colornotfoundmsg);
                             }
                         } else {
-                            msgcolorenable.put(target, true);
-                            msgcolorisrgb.put(target, true);
+                            msgColorEnable.put(target, true);
+                            msgColorIsRgb.put(target, true);
                         }
                     } else {
-                        msgcolorenable.put(target, true);
+                        msgColorEnable.put(target, true);
                     }
                 } else {
-                    color.put(target, colorcodes.get(args[1]));
+                    color.put(target, colorCodes.get(args[1]));
                     sender.sendMessage(colorsetothersmsg.replace("%nick%", target.getName()));
-                    msgcolorisrgb.put(target, false);
-                    msgcolorenable.put(target, true);
+                    msgColorIsRgb.put(target, false);
+                    msgColorEnable.put(target, true);
                 }
             } else {
                 sender.sendMessage(playernotfoundmsg);

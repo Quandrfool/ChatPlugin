@@ -5,8 +5,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
-import ru.chatPlugin.Commands.chatcolor;
-import ru.chatPlugin.Commands.chatplugin;
+import ru.chatPlugin.Commands.Chatcolor;
+import ru.chatPlugin.Commands.Chatplugin;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -19,31 +19,31 @@ import java.util.concurrent.ScheduledExecutorService;
 
 public final class ChatPlugin extends JavaPlugin implements Listener {
 
-    public final static HashSet<String> onload = new HashSet<>();
-    public final static HashSet<String> onsave = new HashSet<>();
+    public final static HashSet<String> onLoad = new HashSet<>();
+    public final static HashSet<String> onSave = new HashSet<>();
     public final static HashSet<Player> players = new HashSet<>();
-    public final static ConcurrentHashMap<Player, String> msgbeginglobal = new ConcurrentHashMap<>();
-    public final static ConcurrentHashMap<Player, String> msgbeginlocal = new ConcurrentHashMap<>();
-    public final static ConcurrentHashMap<Player, Boolean> msgcolorenable = new ConcurrentHashMap<>();
-    public final static ConcurrentHashMap<Player, Boolean> msgcolorisrgb = new ConcurrentHashMap<>();
-    public final static ConcurrentHashMap<String, String> colorcodes = new ConcurrentHashMap<>();
+    public final static ConcurrentHashMap<Player, String> msgBeginGlobal = new ConcurrentHashMap<>();
+    public final static ConcurrentHashMap<Player, String> msgBeginLocal = new ConcurrentHashMap<>();
+    public final static ConcurrentHashMap<Player, Boolean> msgColorEnable = new ConcurrentHashMap<>();
+    public final static ConcurrentHashMap<Player, Boolean> msgColorIsRgb = new ConcurrentHashMap<>();
+    public final static ConcurrentHashMap<String, String> colorCodes = new ConcurrentHashMap<>();
     public final static ConcurrentHashMap<Player, String> color = new ConcurrentHashMap<>();
-    public final static ConcurrentHashMap<Player, ConcurrentHashMap<Character, Integer>> rgbcolor1 = new ConcurrentHashMap<>();
-    public final static ConcurrentHashMap<Player, ConcurrentHashMap<Character, Integer>> rgbcolor2 = new ConcurrentHashMap<>();
-    public final static ConcurrentHashMap<Player, String> colorname = new ConcurrentHashMap<>();
-    public final static ConcurrentHashMap<Player, String> rgbcolorname1 = new ConcurrentHashMap<>();
-    public final static ConcurrentHashMap<Player, String> rgbcolorname2 = new ConcurrentHashMap<>();
+    public final static ConcurrentHashMap<Player, ConcurrentHashMap<Character, Integer>> rgbColor1 = new ConcurrentHashMap<>();
+    public final static ConcurrentHashMap<Player, ConcurrentHashMap<Character, Integer>> rgbColor2 = new ConcurrentHashMap<>();
+    public final static ConcurrentHashMap<Player, String> colorName = new ConcurrentHashMap<>();
+    public final static ConcurrentHashMap<Player, String> rgbColorName1 = new ConcurrentHashMap<>();
+    public final static ConcurrentHashMap<Player, String> rgbColorName2 = new ConcurrentHashMap<>();
     public final static ConcurrentHashMap<Player, String> font = new ConcurrentHashMap<>();
-    public final static ConcurrentHashMap<Player, Long> lastmsgtime = new ConcurrentHashMap<>();
-    public final static ConcurrentHashMap<Player, Long> savetime = new ConcurrentHashMap<>();
-    public final static ConcurrentHashMap<Player, Collection<Player>> lastnearbyplayers = new ConcurrentHashMap<>();
-    public final static ConcurrentHashMap<String, ItemStack> preparedheads = new ConcurrentHashMap<>();
+    public final static ConcurrentHashMap<Player, Long> lastMsgTime = new ConcurrentHashMap<>();
+    public final static ConcurrentHashMap<Player, Long> saveTime = new ConcurrentHashMap<>();
+    public final static ConcurrentHashMap<Player, Collection<Player>> lastNearbyPlayers = new ConcurrentHashMap<>();
+    public final static ConcurrentHashMap<String, ItemStack> preparedHeads = new ConcurrentHashMap<>();
     public final static ScheduledExecutorService exec = Executors.newScheduledThreadPool(6);
     public final static Random rand = new Random();
     public static JavaPlugin plugin;
-    public static chatcolor chatcolorexecutor;
-    public static String configfolderpath = "";
-    public static String playersdatafolder = "";
+    public static Chatcolor chatcolorExecutor;
+    public static String configFolderPath = "";
+    public static String playersDataFolder = "";
     public static boolean placeholderapisupport = false;
     public static boolean chatcolorcommandsupport = true;
     public static String globalmsgformat = "";
@@ -77,35 +77,35 @@ public final class ChatPlugin extends JavaPlugin implements Listener {
     @Override
     public void onEnable() {
         plugin = this;
-        configfolderpath = plugin.getDataFolder().getAbsolutePath();
-        playersdatafolder = configfolderpath + "/playerdata";
+        configFolderPath = plugin.getDataFolder().getAbsolutePath();
+        playersDataFolder = configFolderPath + "/playerdata";
         Config.loadConfig();
-        chatcolorexecutor = new chatcolor();
-        final PluginCommand chatcolorcommand = getCommand("chatcolor");
-        final chatplugin chatpluginexecutor = new chatplugin();
-        final PluginCommand chatplugincommand = getCommand("chatplugin");
-        chatcolorcommand.setExecutor(chatcolorexecutor);
-        chatcolorcommand.setTabCompleter(chatcolorexecutor);
-        chatplugincommand.setExecutor(chatpluginexecutor);
-        chatplugincommand.setTabCompleter(chatpluginexecutor);
+        chatcolorExecutor = new Chatcolor();
+        final PluginCommand chatcolorCommand = getCommand("chatcolor");
+        final Chatplugin chatpluginExecutor = new Chatplugin();
+        final PluginCommand chatpluginCommand = getCommand("chatplugin");
+        chatcolorCommand.setExecutor(chatcolorExecutor);
+        chatcolorCommand.setTabCompleter(chatcolorExecutor);
+        chatpluginCommand.setExecutor(chatpluginExecutor);
+        chatpluginCommand.setTabCompleter(chatpluginExecutor);
         getServer().getPluginManager().registerEvents(new ru.chatPlugin.Listener(), plugin);
     }
 
     @Override
     public void onDisable() {
         if (chatcolorcommandsupport) {
-            for (Player player : players) {
-                final File playerdata = new File(playersdatafolder + "/" + player.getName() + ".dat");
-                try {
-                    final ConcurrentHashMap<Character, Integer> rgb1 = rgbcolor1.get(player);
-                    final ConcurrentHashMap<Character, Integer> rgb2 = rgbcolor2.get(player);
-                    final String data = msgcolorenable.get(player) + "|" + msgcolorisrgb.get(player) + "|" + color.get(player) + "|" + rgb1.get('r') + "_" + rgb1.get('g') + "_" + rgb1.get('b') + "|" + rgb2.get('r') + "_" + rgb2.get('b') + "_" + rgb2.get('b') + "|" + font.get(player) + "|" + colorname.get(player) + "|" + rgbcolorname1.get(player) + "|" + rgbcolorname2.get(player) + "|";
-                    final FileWriter writer = new FileWriter(playerdata);
+            try {
+                for (Player player : players) {
+                    final File playerData = new File(playersDataFolder + "/" + player.getName() + ".dat");
+                    final ConcurrentHashMap<Character, Integer> rgb1 = rgbColor1.get(player);
+                    final ConcurrentHashMap<Character, Integer> rgb2 = rgbColor2.get(player);
+                    final String data = msgColorEnable.get(player) + "|" + msgColorIsRgb.get(player) + "|" + color.get(player) + "|" + rgb1.get('r') + "_" + rgb1.get('g') + "_" + rgb1.get('b') + "|" + rgb2.get('r') + "_" + rgb2.get('b') + "_" + rgb2.get('b') + "|" + font.get(player) + "|" + colorName.get(player) + "|" + rgbColorName1.get(player) + "|" + rgbColorName2.get(player) + "|";
+                    final FileWriter writer = new FileWriter(playerData);
                     writer.write(data);
                     writer.close();
-                } catch (Exception e) {
-                    e.printStackTrace();
                 }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
     }

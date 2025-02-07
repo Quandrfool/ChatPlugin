@@ -12,7 +12,7 @@ import static ru.chatPlugin.ChatPlugin.*;
 public class Config {
 
     public static void loadConfig() {
-        final String defcfg = "placeholderapi-support: false\n" +
+        final String defCfg = "placeholderapi-support: false\n" +
                 "chatcolor-command-support: true\n" +
                 "\n" +
                 "global-msg-format: \"§8§l[§6§lG§8§l]§f %prefix%%nick%%suffix%§f: \"\n" +
@@ -46,34 +46,34 @@ public class Config {
                 "underlineonothers-msg: \"§a§lВы успешно включили подчёркнутый шрифт для игрока %nick%\"\n" +
                 "underlineoffothers-msg: \"§a§lВы успешно выключили подчёркнутый шрифт для игрока %nick%\"\n" +
                 "unallowedsymbols-msg: \"§c§lВ вашем сообщении есть неразрешённые символы\"";
-        final File cfgdir = new File(configfolderpath);
-        if (!cfgdir.exists()) {
-            cfgdir.mkdir();
+        final File cfgDir = new File(configFolderPath);
+        if (!cfgDir.exists()) {
+            cfgDir.mkdir();
         }
-        final File cfg = new File(configfolderpath + "/config.yml");
+        final File cfg = new File(configFolderPath + "/config.yml");
         try {
             if (!cfg.exists()) {
                 cfg.createNewFile();
                 final FileWriter writer = new FileWriter(cfg);
-                writer.write(defcfg);
+                writer.write(defCfg);
                 writer.close();
             }
             processOptions(new String(Files.readAllBytes(Paths.get(cfg.getAbsolutePath()))).split("\n"));
         } catch (Exception e) {
             try {
-                final String newname = "config-" + rand.nextInt(999999999) + ".yml";
-                final File oldcfg = new File(configfolderpath + "/" + newname);
-                oldcfg.createNewFile();
-                FileWriter writer = new FileWriter(oldcfg);
+                final String newName = "config-" + rand.nextInt(999999999) + ".yml";
+                final File oldCfg = new File(configFolderPath + "/" + newName);
+                oldCfg.createNewFile();
+                FileWriter writer = new FileWriter(oldCfg);
                 writer.write(new String(Files.readAllBytes(Paths.get(cfg.getAbsolutePath()))));
                 writer.close();
                 cfg.delete();
                 cfg.createNewFile();
                 writer = new FileWriter(cfg);
-                writer.write(defcfg);
+                writer.write(defCfg);
                 writer.close();
                 processOptions(new String(Files.readAllBytes(Paths.get(cfg.getAbsolutePath()))).split("\n"));
-                Bukkit.getLogger().info("§cВо время загрузки конфигурации произошла ошибка, поэтому была загружена дефолтная конфигурация, ваша старая была сохранена в файл " + newname);
+                Bukkit.getLogger().info("§cВо время загрузки конфигурации произошла ошибка, поэтому была загружена дефолтная конфигурация, ваша старая была сохранена в файл " + newName);
                 Bukkit.getLogger().info("StackTrace:");
                 e.printStackTrace();
             } catch (Exception ee) {

@@ -65,14 +65,14 @@ public class Utils {
         }
     }
 
-    public static boolean setRGB(String colorstr, CommandSender sender, Player target) {
+    public static boolean setRgb(String colorstr, CommandSender sender, Player target) {
         try {
             final String[] colors = colorstr.split("_");
             final String color1 = colors[0];
             final String color2 = colors[1];
-            if (colorcodes.containsKey(color1) & colorcodes.containsKey(color2)) {
-                rgbcolor1.put(target, getRGBByColorName(color1));
-                rgbcolor2.put(target, getRGBByColorName(color2));
+            if (colorCodes.containsKey(color1) & colorCodes.containsKey(color2)) {
+                rgbColor1.put(target, getRgbByColorName(color1));
+                rgbColor2.put(target, getRgbByColorName(color2));
                 sender.sendMessage(colorsetothersmsg.replace("%nick%", target.getName()));
                 return true;
             } else {
@@ -83,20 +83,20 @@ public class Utils {
         }
     }
 
-    public static void disablemsgcolor(Player player) {
-        msgcolorenable.put(player, false);
-        msgcolorisrgb.put(player, false);
+    public static void disableMsgColor(Player player) {
+        msgColorEnable.put(player, false);
+        msgColorIsRgb.put(player, false);
         color.put(player, "");
-        final ConcurrentHashMap<Character, Integer> rgb = getRGBByColorName("white");
-        rgbcolor1.put(player, rgb);
-        rgbcolor2.put(player, rgb);
+        final ConcurrentHashMap<Character, Integer> rgb = getRgbByColorName("white");
+        rgbColor1.put(player, rgb);
+        rgbColor2.put(player, rgb);
         font.put(player, "");
-        colorname.put(player, "§f§lБелый");
-        rgbcolorname1.put(player, "§f§lБелый");
-        rgbcolorname2.put(player, "§f§lБелый");
+        colorName.put(player, "§f§lБелый");
+        rgbColorName1.put(player, "§f§lБелый");
+        rgbColorName2.put(player, "§f§lБелый");
     }
 
-    public static ConcurrentHashMap<Character, Integer> getRGBByColorName(String colorstr) {
+    public static ConcurrentHashMap<Character, Integer> getRgbByColorName(String colorstr) {
         final ConcurrentHashMap<Character, Integer> rgb = new ConcurrentHashMap<>();
         switch (colorstr) {
             case "red", "§c§lКрасный":
@@ -184,16 +184,16 @@ public class Utils {
         }
     }
 
-    private static String getColorByRGB(int r, int g, int b) {
+    private static String getColorByRgb(int r, int g, int b) {
         return ChatColor.of(String.format("#%02x%02x%02x", r, g, b)) + "";
     }
 
-    public static String colorizemsg(String msg, Player player) {
+    public static String colorizeMsg(String msg, Player player) {
         if (!chatcolorcommandsupport) return msg;
-        if (!msgcolorenable.get(player)) return msg;
-        if (msgcolorisrgb.get(player)) {
-            final ConcurrentHashMap<Character, Integer> startrgb = rgbcolor1.get(player);
-            final ConcurrentHashMap<Character, Integer> endrgb = rgbcolor2.get(player);
+        if (!msgColorEnable.get(player)) return msg;
+        if (msgColorIsRgb.get(player)) {
+            final ConcurrentHashMap<Character, Integer> startrgb = rgbColor1.get(player);
+            final ConcurrentHashMap<Character, Integer> endrgb = rgbColor2.get(player);
             final int startr = startrgb.get('r');
             final int startg = startrgb.get('g');
             final int startb = startrgb.get('b');
@@ -202,7 +202,7 @@ public class Utils {
             final int endb = endrgb.get('b');
             final int divider = msg.length() - 1;
             if (divider < 1) {
-                return getColorByRGB(startr, startg, startb) + font.get(player) + msg;
+                return getColorByRgb(startr, startg, startb) + font.get(player) + msg;
             }
             final int[] r = new int[msg.length()];
             r[0] = startr;
@@ -259,7 +259,7 @@ public class Utils {
             final char[] array = msg.toCharArray();
             final StringBuilder newmsg = new StringBuilder();
             for (int i = 0; i < msg.length(); i++) {
-                newmsg.append(getColorByRGB(r[i], g[i], b[i]) + pfont + array[i]);
+                newmsg.append(getColorByRgb(r[i], g[i], b[i]) + pfont + array[i]);
             }
             return newmsg.toString();
         } else {
@@ -276,12 +276,12 @@ public class Utils {
         }
         final Inventory menu = Bukkit.createInventory(player2, 9, title);
         menu.setMaxStackSize(88634);
-        if (!msgcolorenable.get(player2)) {
-            menu.setItem(4, Prepared.enablecustommessages);
+        if (!msgColorEnable.get(player2)) {
+            menu.setItem(4, Prepared.enableCustomMessages);
         } else {
-            menu.setItem(3, Prepared.disablecustommessages);
-            menu.setItem(4, Prepared.colorsettings);
-            menu.setItem(5, Prepared.fontsettings);
+            menu.setItem(3, Prepared.disableCustomMessages);
+            menu.setItem(4, Prepared.colorSettings);
+            menu.setItem(5, Prepared.fontSettings);
         }
         player1.openInventory(menu);
     }
@@ -300,7 +300,7 @@ public class Utils {
         return item;
     }
 
-    public static Inventory createRGBMenu(Player player1, Player player2) {
+    public static Inventory createRgbMenu(Player player1, Player player2) {
         final String title;
         if (player1 == player2) {
             title = "§0§lНастройки сообщений";
@@ -308,16 +308,16 @@ public class Utils {
             title = "§0§lНастройки сообщений игрока " + player2.getName();
         }
         final Inventory menu = Bukkit.createInventory(player2, 9, title);
-        menu.setItem(0, Prepared.setnormal);
+        menu.setItem(0, Prepared.setNormal);
         menu.setItem(8, Prepared.back);
-        final ItemStack color1 = preparedheads.get(rgbcolorname1.get(player2)).clone();
+        final ItemStack color1 = preparedHeads.get(rgbColorName1.get(player2)).clone();
         final ItemMeta meta1 = color1.getItemMeta();
         final List<String> lorelist1 = new ArrayList<>();
         lorelist1.add("§f§lПервый цвет");
         lorelist1.add(" ");
         meta1.setLore(lorelist1);
         color1.setItemMeta(meta1);
-        final ItemStack color2 = preparedheads.get(rgbcolorname2.get(player2)).clone();
+        final ItemStack color2 = preparedHeads.get(rgbColorName2.get(player2)).clone();
         final ItemMeta meta2 = color2.getItemMeta();
         final List<String> lorelist2 = new ArrayList<>();
         lorelist2.add("§f§lВторой цвет");
@@ -331,37 +331,37 @@ public class Utils {
     }
 
     public static void fillInventoryColors(Inventory inv, int startindex) {
-        inv.setItem(startindex, Prepared.redhead);
+        inv.setItem(startindex, Prepared.redHead);
         startindex++;
-        inv.setItem(startindex, Prepared.darkredhead);
+        inv.setItem(startindex, Prepared.darkRedHead);
         startindex++;
-        inv.setItem(startindex, Prepared.goldhead);
+        inv.setItem(startindex, Prepared.goldHead);
         startindex++;
-        inv.setItem(startindex, Prepared.yellowhead);
+        inv.setItem(startindex, Prepared.yellowHead);
         startindex++;
-        inv.setItem(startindex, Prepared.greenhead);
+        inv.setItem(startindex, Prepared.greenHead);
         startindex++;
-        inv.setItem(startindex, Prepared.darkgreenhead);
+        inv.setItem(startindex, Prepared.darkGreenHead);
         startindex++;
-        inv.setItem(startindex, Prepared.bluehead);
+        inv.setItem(startindex, Prepared.blueHead);
         startindex++;
-        inv.setItem(startindex, Prepared.darkbluehead);
+        inv.setItem(startindex, Prepared.darkBlueHead);
         startindex++;
-        inv.setItem(startindex, Prepared.lightpurplehead);
+        inv.setItem(startindex, Prepared.lightPurpleHead);
         startindex = startindex + 2;
-        inv.setItem(startindex, Prepared.darkpurplehead);
+        inv.setItem(startindex, Prepared.darkPurpleHead);
         startindex++;
-        inv.setItem(startindex, Prepared.blackhead);
+        inv.setItem(startindex, Prepared.blackHead);
         startindex++;
-        inv.setItem(startindex, Prepared.grayhead);
+        inv.setItem(startindex, Prepared.grayHead);
         startindex++;
-        inv.setItem(startindex, Prepared.darkgrayhead);
+        inv.setItem(startindex, Prepared.darkGrayHead);
         startindex++;
-        inv.setItem(startindex, Prepared.aquahead);
+        inv.setItem(startindex, Prepared.aquaHead);
         startindex++;
-        inv.setItem(startindex, Prepared.darkaquahead);
+        inv.setItem(startindex, Prepared.darkAquaHead);
         startindex++;
-        inv.setItem(startindex, Prepared.whitehead);
+        inv.setItem(startindex, Prepared.whiteHead);
     }
 
     public static ItemStack prepareHead(String colorstr, String base64) {
@@ -376,61 +376,61 @@ public class Utils {
         lorelist.add(" ");
         meta.setLore(lorelist);
         item.setItemMeta(meta);
-        preparedheads.put(colorstr, item);
+        preparedHeads.put(colorstr, item);
         return item;
     }
 
     public static void prepare() {
         if (chatcolorcommandsupport) {
-            final File playerdatafolderf = new File(playersdatafolder);
+            final File playerdatafolderf = new File(playersDataFolder);
             if (!playerdatafolderf.exists()) playerdatafolderf.mkdir();
-            Prepared.redhead = prepareHead("§c§lКрасный", "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYWMxNDYwMGFjZTUwNjk1YzdjOWJjZjA5ZTQyYWZkOWY1M2M5ZTIwZGFhMTUyNGM5NWRiNDE5N2RkMzExNjQxMiJ9fX0=");
-            Prepared.darkredhead = prepareHead("§4§lТёмно-красный", "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNjhkNDA5MzUyNzk3NzFhZGM2MzkzNmVkOWM4NDYzYWJkZjVjNWJhNzhkMmU4NmNiMWVjMTBiNGQxZDIyNWZiIn19fQ==");
-            Prepared.goldhead = prepareHead("§6§lЗолотой", "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMjA5MGQwOWUxNzNlZTM0MTM4YzNiMDFiNDhlZTBiZTUzNGJiYjFhY2UwZGRmNWZmOThlNjZmN2IwMjExMzk5NSJ9fX0=");
-            Prepared.yellowhead = prepareHead("§e§lЖёлтый", "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYTg5YjkzZmQ2MTZlZDM2NzBjY2Y2NDdhMGY5MzgwMzk4YzBkNDYxNTYzNGYyZGVmZjQ2YzZlZGJkYzcxMjg4NSJ9fX0=");
-            Prepared.greenhead = prepareHead("§a§lЗелёный", "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOTI1YjhlZWQ1YzU2NWJkNDQwZWM0N2M3OWMyMGQ1Y2YzNzAxNjJiMWQ5YjVkZDMxMDBlZDYyODNmZTAxZDZlIn19fQ==");
-            Prepared.darkgreenhead = prepareHead("§2§lТёмно-зелёный", "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMWUzOGZhMzEzMWUyZGEwNGE4ZjhkNTA4NzJhODIzMmQ3ZDlkZWEzNDBkMDZjOTA5N2ZmYTNjYzQ4MjA4ZGYxZCJ9fX0=");
-            Prepared.bluehead = prepareHead("§9§lГолубой", "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNjEwZTM3NGNkYzJiYTk1YmI3MmYxYTAzNmM3N2RhMzUwOTkzNWExYWJkMjRiNjhjNmIzNTkxNjkwYjEwM2ZlZCJ9fX0=");
-            Prepared.darkbluehead = prepareHead("§1§lСиний", "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZTExOTRmZTllZGY1ODNjMGViZTdkYzFkMzQzMDliZWVmYjIyOWJiMTViNmE4YzNjN2IwYzc2ZGUyN2M4YjdiZiJ9fX0=");
-            Prepared.lightpurplehead = prepareHead("§d§lСветло-пурпурный", "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZGNmMjgzNTE4MGNiZmVjM2IzMTdkNmE0NzQ5MWE3NGFlNzE0MzViYTE2OWE1NzkyNWI5MDk2ZWEyZjljNjFiNiJ9fX0=");
-            Prepared.darkpurplehead = prepareHead("§5§lТёмно-пурпурный", "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOWI4MmU3MmI4ZTQ4MzJlNWExMTRhYjBmYzEyN2M4YWNiODNmMzFmZDRkMjY2ZDA4YjJjYWNjNWI2NDAxYTQwMCJ9fX0=");
-            Prepared.blackhead = prepareHead("§0§lЧёрный", "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMmE1MmQ1NzlhZmUyZmRmN2I4ZWNmYTc0NmNkMDE2MTUwZDk2YmViNzUwMDliYjI3MzNhZGUxNWQ0ODdjNDJhMSJ9fX0=");
-            Prepared.grayhead = prepareHead("§7§lСерый", "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYjFhMWUyNDk0MjdmNjA5YWZiZjI0ZTJlODI2Y2EwYjQxMGE1NmNjM2MwOWI1NmVkNjkwYTk5OWE5MDQ2MDI0YyJ9fX0=");
-            Prepared.darkgrayhead = prepareHead("§8§lТёмно-серый", "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYzNmNTU1ODdlNjlhNDlkZGY5ZDdkNGEzZDFmY2NlMzg4ZWE3NTFkZTdhMDE5NjM5NzdhZjU1NWQ5YjNiMTJkZCJ9fX0=");
-            Prepared.aquahead = prepareHead("§b§lАквамариновый", "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMmQ2YThiNDdkYTkyM2I3ZDEwMTQyNDQ3ZmRiZGNmZDFlOGU4MmViNDg0OTY0MjUyYmIzNmRkYjVmNzNiNTFjMiJ9fX0=");
-            Prepared.darkaquahead = prepareHead("§3§lТёмно-аквамариновый", "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMzFmNTcwNTExMzBlODUwODQ4ZThlMzdlNzIxMTBhMTZmMDlkYmRhYjdkOWQ2ZTMzYTlmZWNmZDM0OGQ1YTExMCJ9fX0=");
-            Prepared.whitehead = prepareHead("§f§lБелый", "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYWE3NzRkYWRiNGJhNDQyZTBlMjhmNWZmYmQ2MzQxZTZjNzFhNzdkMTU3NDU1OTM0NzE4MWRiNjE0MzA4YWUyNSJ9fX0=");
+            Prepared.redHead = prepareHead("§c§lКрасный", "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYWMxNDYwMGFjZTUwNjk1YzdjOWJjZjA5ZTQyYWZkOWY1M2M5ZTIwZGFhMTUyNGM5NWRiNDE5N2RkMzExNjQxMiJ9fX0=");
+            Prepared.darkRedHead = prepareHead("§4§lТёмно-красный", "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNjhkNDA5MzUyNzk3NzFhZGM2MzkzNmVkOWM4NDYzYWJkZjVjNWJhNzhkMmU4NmNiMWVjMTBiNGQxZDIyNWZiIn19fQ==");
+            Prepared.goldHead = prepareHead("§6§lЗолотой", "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMjA5MGQwOWUxNzNlZTM0MTM4YzNiMDFiNDhlZTBiZTUzNGJiYjFhY2UwZGRmNWZmOThlNjZmN2IwMjExMzk5NSJ9fX0=");
+            Prepared.yellowHead = prepareHead("§e§lЖёлтый", "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYTg5YjkzZmQ2MTZlZDM2NzBjY2Y2NDdhMGY5MzgwMzk4YzBkNDYxNTYzNGYyZGVmZjQ2YzZlZGJkYzcxMjg4NSJ9fX0=");
+            Prepared.greenHead = prepareHead("§a§lЗелёный", "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOTI1YjhlZWQ1YzU2NWJkNDQwZWM0N2M3OWMyMGQ1Y2YzNzAxNjJiMWQ5YjVkZDMxMDBlZDYyODNmZTAxZDZlIn19fQ==");
+            Prepared.darkGreenHead = prepareHead("§2§lТёмно-зелёный", "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMWUzOGZhMzEzMWUyZGEwNGE4ZjhkNTA4NzJhODIzMmQ3ZDlkZWEzNDBkMDZjOTA5N2ZmYTNjYzQ4MjA4ZGYxZCJ9fX0=");
+            Prepared.blueHead = prepareHead("§9§lГолубой", "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNjEwZTM3NGNkYzJiYTk1YmI3MmYxYTAzNmM3N2RhMzUwOTkzNWExYWJkMjRiNjhjNmIzNTkxNjkwYjEwM2ZlZCJ9fX0=");
+            Prepared.darkBlueHead = prepareHead("§1§lСиний", "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZTExOTRmZTllZGY1ODNjMGViZTdkYzFkMzQzMDliZWVmYjIyOWJiMTViNmE4YzNjN2IwYzc2ZGUyN2M4YjdiZiJ9fX0=");
+            Prepared.lightPurpleHead = prepareHead("§d§lСветло-пурпурный", "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZGNmMjgzNTE4MGNiZmVjM2IzMTdkNmE0NzQ5MWE3NGFlNzE0MzViYTE2OWE1NzkyNWI5MDk2ZWEyZjljNjFiNiJ9fX0=");
+            Prepared.darkPurpleHead = prepareHead("§5§lТёмно-пурпурный", "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOWI4MmU3MmI4ZTQ4MzJlNWExMTRhYjBmYzEyN2M4YWNiODNmMzFmZDRkMjY2ZDA4YjJjYWNjNWI2NDAxYTQwMCJ9fX0=");
+            Prepared.blackHead = prepareHead("§0§lЧёрный", "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMmE1MmQ1NzlhZmUyZmRmN2I4ZWNmYTc0NmNkMDE2MTUwZDk2YmViNzUwMDliYjI3MzNhZGUxNWQ0ODdjNDJhMSJ9fX0=");
+            Prepared.grayHead = prepareHead("§7§lСерый", "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYjFhMWUyNDk0MjdmNjA5YWZiZjI0ZTJlODI2Y2EwYjQxMGE1NmNjM2MwOWI1NmVkNjkwYTk5OWE5MDQ2MDI0YyJ9fX0=");
+            Prepared.darkGrayHead = prepareHead("§8§lТёмно-серый", "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYzNmNTU1ODdlNjlhNDlkZGY5ZDdkNGEzZDFmY2NlMzg4ZWE3NTFkZTdhMDE5NjM5NzdhZjU1NWQ5YjNiMTJkZCJ9fX0=");
+            Prepared.aquaHead = prepareHead("§b§lАквамариновый", "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMmQ2YThiNDdkYTkyM2I3ZDEwMTQyNDQ3ZmRiZGNmZDFlOGU4MmViNDg0OTY0MjUyYmIzNmRkYjVmNzNiNTFjMiJ9fX0=");
+            Prepared.darkAquaHead = prepareHead("§3§lТёмно-аквамариновый", "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMzFmNTcwNTExMzBlODUwODQ4ZThlMzdlNzIxMTBhMTZmMDlkYmRhYjdkOWQ2ZTMzYTlmZWNmZDM0OGQ1YTExMCJ9fX0=");
+            Prepared.whiteHead = prepareHead("§f§lБелый", "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYWE3NzRkYWRiNGJhNDQyZTBlMjhmNWZmYmQ2MzQxZTZjNzFhNzdkMTU3NDU1OTM0NzE4MWRiNjE0MzA4YWUyNSJ9fX0=");
             Prepared.back = createItem(Material.ARROW, "§lНазад");
-            Prepared.enablecustommessages = createItem(Material.RED_WOOL, "§a§lВключить кастомные сообщения");
-            Prepared.disablecustommessages = createItem(Material.LIME_WOOL, "§c§lВыключить кастомные сообщения");
-            Prepared.colorsettings = createItem(Material.ORANGE_BANNER, "§a§lНастройки цвета");
-            Prepared.fontsettings = createItem(Material.OAK_SIGN, "§a§lНастройки шрифта");
-            Prepared.setrgb = createItem(Material.TRIPWIRE_HOOK, "§lПоменять тип цвета на градиент");
-            Prepared.setnormal = createItem(Material.TRIPWIRE_HOOK, "§lПоменять тип цвета обычный");
-            Prepared.offbold = createItem(Material.LIME_WOOL, "§c§lВыключить жирный шрифт");
-            Prepared.onbold = createItem(Material.RED_WOOL, "§a§lВключить жирный шрифт");
-            Prepared.offitalic = createItem(Material.LIME_WOOL, "§c§lВыключить наклонённый шрифт");
-            Prepared.onitalic = createItem(Material.RED_WOOL, "§a§lВключить наклонённый шрифт");
-            Prepared.offunderline = createItem(Material.LIME_WOOL, "§c§lВыключить подчёркнутый шрифт");
-            Prepared.onunderline = createItem(Material.RED_WOOL, "§a§lВключить подчёркнутый шрифт");
-            Prepared.offstrikethrough = createItem(Material.LIME_WOOL, "§c§lВыключить зачёркнутый шрифт");
-            Prepared.onstrikethrough = createItem(Material.RED_WOOL, "§a§lВключить зачёркнутый шрифт");
-            colorcodes.put("red", "§c");
-            colorcodes.put("dark-red", "§4");
-            colorcodes.put("gold", "§6");
-            colorcodes.put("yellow", "§e");
-            colorcodes.put("green", "§a");
-            colorcodes.put("dark-green", "§2");
-            colorcodes.put("blue", "§9");
-            colorcodes.put("dark-blue", "§1");
-            colorcodes.put("light-purple", "§d");
-            colorcodes.put("dark-purple", "§5");
-            colorcodes.put("black", "§0");
-            colorcodes.put("gray", "§7");
-            colorcodes.put("dark-gray", "§8");
-            colorcodes.put("aqua", "§b");
-            colorcodes.put("dark-aqua", "§3");
-            colorcodes.put("white", "§f");
+            Prepared.enableCustomMessages = createItem(Material.RED_WOOL, "§a§lВключить кастомные сообщения");
+            Prepared.disableCustomMessages = createItem(Material.LIME_WOOL, "§c§lВыключить кастомные сообщения");
+            Prepared.colorSettings = createItem(Material.ORANGE_BANNER, "§a§lНастройки цвета");
+            Prepared.fontSettings = createItem(Material.OAK_SIGN, "§a§lНастройки шрифта");
+            Prepared.setRgb = createItem(Material.TRIPWIRE_HOOK, "§lПоменять тип цвета на градиент");
+            Prepared.setNormal = createItem(Material.TRIPWIRE_HOOK, "§lПоменять тип цвета обычный");
+            Prepared.offBold = createItem(Material.LIME_WOOL, "§c§lВыключить жирный шрифт");
+            Prepared.onBold = createItem(Material.RED_WOOL, "§a§lВключить жирный шрифт");
+            Prepared.offItalic = createItem(Material.LIME_WOOL, "§c§lВыключить наклонённый шрифт");
+            Prepared.onItalic = createItem(Material.RED_WOOL, "§a§lВключить наклонённый шрифт");
+            Prepared.offUnderline = createItem(Material.LIME_WOOL, "§c§lВыключить подчёркнутый шрифт");
+            Prepared.onUnderline = createItem(Material.RED_WOOL, "§a§lВключить подчёркнутый шрифт");
+            Prepared.offStrikethrough = createItem(Material.LIME_WOOL, "§c§lВыключить зачёркнутый шрифт");
+            Prepared.onStrikethrough = createItem(Material.RED_WOOL, "§a§lВключить зачёркнутый шрифт");
+            colorCodes.put("red", "§c");
+            colorCodes.put("dark-red", "§4");
+            colorCodes.put("gold", "§6");
+            colorCodes.put("yellow", "§e");
+            colorCodes.put("green", "§a");
+            colorCodes.put("dark-green", "§2");
+            colorCodes.put("blue", "§9");
+            colorCodes.put("dark-blue", "§1");
+            colorCodes.put("light-purple", "§d");
+            colorCodes.put("dark-purple", "§5");
+            colorCodes.put("black", "§0");
+            colorCodes.put("gray", "§7");
+            colorCodes.put("dark-gray", "§8");
+            colorCodes.put("aqua", "§b");
+            colorCodes.put("dark-aqua", "§3");
+            colorCodes.put("white", "§f");
         } else {
             Prepared.clear();
         }
