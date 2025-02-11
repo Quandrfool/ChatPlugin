@@ -1,7 +1,6 @@
 package ru.chatPlugin;
 
 import me.clip.placeholderapi.PlaceholderAPI;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -10,6 +9,7 @@ import org.bukkit.event.player.PlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.world.WorldSaveEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -30,6 +30,20 @@ import java.util.concurrent.TimeUnit;
 import static ru.chatPlugin.ChatPlugin.*;
 
 public class Listener implements org.bukkit.event.Listener {
+
+    @EventHandler
+    public void onSave(WorldSaveEvent event) {
+        final long currentTime = System.currentTimeMillis();
+        if (currentTime - dataSaveTime > 5000) {
+            exec.schedule(new Runnable() {
+                @Override
+                public void run() {
+                    Utils.saveData();
+                }
+            }, 0, TimeUnit.MILLISECONDS);
+            dataSaveTime = currentTime;
+        }
+    }
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onLogin(PlayerLoginEvent event) {
@@ -305,12 +319,7 @@ public class Listener implements org.bukkit.event.Listener {
                             }
                             return;
                         }
-                        final ConcurrentHashMap<Character, Integer> rgb1 = rgbColor1.get(player);
-                        final ConcurrentHashMap<Character, Integer> rgb2 = rgbColor2.get(player);
-                        final String data = msgColorEnable.get(player) + "|" + msgColorIsRgb.get(player) + "|" + color.get(player) + "|" + rgb1.get('r') + "_" + rgb1.get('g') + "_" + rgb1.get('b') + "|" + rgb2.get('r') + "_" + rgb2.get('g') + "_" + rgb2.get('b') + "|" + font.get(player) + "|" + colorName.get(player) + "|" + rgbColorName1.get(player) + "|" + rgbColorName2.get(player) + "|";
-                        final FileWriter writer = new FileWriter(playersDataFolder + "/" + nick + ".dat");
-                        writer.write(data);
-                        writer.close();
+                        Utils.savePlayerData(player, nick);
                         msgColorEnable.remove(player);
                         msgColorIsRgb.remove(player);
                         color.remove(player);
@@ -388,7 +397,7 @@ public class Listener implements org.bukkit.event.Listener {
         if (maxStackSize < 88634) return;
         try {
             final Player player = (Player) inv.getHolder();
-            final Player player2 = Bukkit.getPlayer(inv.getViewers().get(0).getName());
+            final Player player2 = server.getPlayer(inv.getViewers().get(0).getName());
             final String item = event.getCurrentItem().getLore().get(0);
             switch (maxStackSize) {
                 case 88634:
@@ -421,7 +430,7 @@ public class Listener implements org.bukkit.event.Listener {
                                 } else {
                                     title = "§0§lНастройки сообщений игрока " + player2.getName();
                                 }
-                                final Inventory menu = Bukkit.createInventory(player2, 36, title);
+                                final Inventory menu = server.createInventory(player2, 36, title);
                                 menu.setItem(0, Prepared.setRgb);
                                 Utils.fillInventoryColors(menu, 18);
                                 final ItemStack currentColor = preparedHeads.get(colorName.get(player)).clone();
@@ -572,7 +581,7 @@ public class Listener implements org.bukkit.event.Listener {
                             } else {
                                 title = "§0§lНастройки сообщений игрока " + player2.getName();
                             }
-                            final Inventory menu = Bukkit.createInventory(player2, 36, title);
+                            final Inventory menu = server.createInventory(player2, 36, title);
                             menu.setItem(0, Prepared.setRgb);
                             Utils.fillInventoryColors(menu, 18);
                             menu.setItem(8, Prepared.back);
@@ -594,7 +603,7 @@ public class Listener implements org.bukkit.event.Listener {
                             } else {
                                 color1Title = "§0§lНастройки сообщений игрока " + player2.getName();
                             }
-                            final Inventory color1Menu = Bukkit.createInventory(player2, 18, color1Title);
+                            final Inventory color1Menu = server.createInventory(player2, 18, color1Title);
                             color1Menu.setMaxStackSize(88638);
                             Utils.fillInventoryColors(color1Menu, 0);
                             player.openInventory(color1Menu);
@@ -606,7 +615,7 @@ public class Listener implements org.bukkit.event.Listener {
                             } else {
                                 color2Title = "§0§lНастройки сообщений игрока " + player2.getName();
                             }
-                            final Inventory color2Menu = Bukkit.createInventory(player2, 18, color2Title);
+                            final Inventory color2Menu = server.createInventory(player2, 18, color2Title);
                             color2Menu.setMaxStackSize(88639);
                             Utils.fillInventoryColors(color2Menu, 0);
                             player.openInventory(color2Menu);

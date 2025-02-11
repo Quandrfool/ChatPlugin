@@ -3,7 +3,6 @@ package ru.chatPlugin;
 import com.destroystokyo.paper.profile.PlayerProfile;
 import com.destroystokyo.paper.profile.ProfileProperty;
 import net.md_5.bungee.api.ChatColor;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -13,6 +12,8 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -274,7 +275,7 @@ public class Utils {
         } else {
             title = "§0§lНастройки сообщений игрока " + player2.getName();
         }
-        final Inventory menu = Bukkit.createInventory(player2, 9, title);
+        final Inventory menu = server.createInventory(player2, 9, title);
         menu.setMaxStackSize(88634);
         if (!msgColorEnable.get(player2)) {
             menu.setItem(4, Prepared.enableCustomMessages);
@@ -307,7 +308,7 @@ public class Utils {
         } else {
             title = "§0§lНастройки сообщений игрока " + player2.getName();
         }
-        final Inventory menu = Bukkit.createInventory(player2, 9, title);
+        final Inventory menu = server.createInventory(player2, 9, title);
         menu.setItem(0, Prepared.setNormal);
         menu.setItem(8, Prepared.back);
         final ItemStack color1 = preparedHeads.get(rgbColorName1.get(player2)).clone();
@@ -367,7 +368,7 @@ public class Utils {
     public static ItemStack prepareHead(String colorstr, String base64) {
         final ItemStack item = new ItemStack(Material.PLAYER_HEAD);
         final SkullMeta meta = (SkullMeta) item.getItemMeta();
-        final PlayerProfile profile = Bukkit.createProfile("");
+        final PlayerProfile profile = server.createProfile("");
         profile.setProperty(new ProfileProperty("textures", base64));
         meta.setPlayerProfile(profile);
         meta.setDisplayName(" ");
@@ -434,5 +435,22 @@ public class Utils {
         } else {
             Prepared.clear();
         }
+    }
+
+    public static void saveData() {
+        try {
+            for (Player player : players) {
+                Utils.savePlayerData(player, player.getName());
+            }
+        } catch (Exception e) {}
+    }
+
+    public static void savePlayerData(Player player, String nick) throws IOException {
+        final ConcurrentHashMap<Character, Integer> rgb1 = rgbColor1.get(player);
+        final ConcurrentHashMap<Character, Integer> rgb2 = rgbColor2.get(player);
+        final String data = msgColorEnable.get(player) + "|" + msgColorIsRgb.get(player) + "|" + color.get(player) + "|" + rgb1.get('r') + "_" + rgb1.get('g') + "_" + rgb1.get('b') + "|" + rgb2.get('r') + "_" + rgb2.get('b') + "_" + rgb2.get('b') + "|" + font.get(player) + "|" + colorName.get(player) + "|" + rgbColorName1.get(player) + "|" + rgbColorName2.get(player) + "|";
+        final FileWriter writer = new FileWriter(playersDataFolder + "/" + nick + ".dat");
+        writer.write(data);
+        writer.close();
     }
 }

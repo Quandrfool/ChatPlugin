@@ -1,11 +1,10 @@
 package ru.chatPlugin;
 
-import org.bukkit.Bukkit;
-
 import java.io.File;
 import java.io.FileWriter;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.logging.Logger;
 
 import static ru.chatPlugin.ChatPlugin.*;
 
@@ -73,8 +72,9 @@ public class Config {
                 writer.write(defCfg);
                 writer.close();
                 processOptions(new String(Files.readAllBytes(Paths.get(cfg.getAbsolutePath()))).split("\n"));
-                Bukkit.getLogger().info("§cВо время загрузки конфигурации произошла ошибка, поэтому была загружена дефолтная конфигурация, ваша старая была сохранена в файл " + newName);
-                Bukkit.getLogger().info("StackTrace:");
+                final Logger logger = server.getLogger();
+                logger.info("§cВо время загрузки конфигурации произошла ошибка, поэтому была загружена дефолтная конфигурация, ваша старая была сохранена в файл " + newName);
+                logger.info("StackTrace:");
                 e.printStackTrace();
             } catch (Exception ee) {
                 ee.printStackTrace();

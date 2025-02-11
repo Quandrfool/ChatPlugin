@@ -1,6 +1,5 @@
 package ru.chatPlugin.Commands;
 
-import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -27,7 +26,7 @@ public class Chatcolor implements CommandExecutor, TabCompleter {
                         break;
                     case 1:
                         if (sender.hasPermission("chatplugin.chatcolor.others")) {
-                            final Player target = Bukkit.getPlayer(args[0]);
+                            final Player target = server.getPlayer(args[0]);
                             if (target != null && players.contains(target)) {
                                 Utils.openSettings((Player) sender, target);
                             } else {
@@ -59,7 +58,7 @@ public class Chatcolor implements CommandExecutor, TabCompleter {
 
     public void args2(CommandSender sender, String[] args) {
         if (sender.hasPermission("chatplugin.chatcolor.others")) {
-            final Player target = Bukkit.getPlayer(args[0]);
+            final Player target = server.getPlayer(args[0]);
             if (target != null && players.contains(target)) {
                 if (!colorCodes.containsKey(args[1])) {
                     if (!Utils.setFont(args[1], sender, target)) {
