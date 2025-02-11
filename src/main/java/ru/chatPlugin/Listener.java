@@ -33,15 +33,17 @@ public class Listener implements org.bukkit.event.Listener {
 
     @EventHandler
     public void onSave(WorldSaveEvent event) {
-        final long currentTime = System.currentTimeMillis();
-        if (currentTime - dataSaveTime > 5000) {
-            exec.schedule(new Runnable() {
-                @Override
-                public void run() {
-                    Utils.saveData();
-                }
-            }, 0, TimeUnit.MILLISECONDS);
-            dataSaveTime = currentTime;
+        if (chatcolorcommandsupport) {
+            final long currentTime = System.currentTimeMillis();
+            if (currentTime - dataSaveTime > 5000) {
+                exec.schedule(new Runnable() {
+                    @Override
+                    public void run() {
+                        Utils.saveData();
+                    }
+                }, 0, TimeUnit.MILLISECONDS);
+                dataSaveTime = currentTime;
+            }
         }
     }
 
